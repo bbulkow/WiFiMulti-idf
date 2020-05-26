@@ -26,7 +26,7 @@
 #include "esp_timer.h"
 #include "esp_wifi.h"
 #include "esp_log.h"
-#include "nvs_flash.h"
+#include "esp_err.h"
 #include "esp_idf_version.h"  // several bits of code depend on version :-(
 
 #include "lwip/err.h"
@@ -425,9 +425,9 @@ wifi_multi_find(const uint8_t *ssid)
 esp_err_t wifi_multi_ap_add(const char* ssid, const char *password) {
 
 	if (ssid == NULL)	return(-1);
-	if (strlen(ssid) + 1 > SSID_LEN) return(ESP_INVALID_ARG);
+	if (strlen(ssid) + 1 > SSID_LEN) return(ESP_ERR_INVALID_ARG);
 	// password allowed to be null for open APs
-	if (password && ( strlen(password) + 1 > PASSWORD_LEN ) ) return(ESP_INVALID_ARG);
+	if (password && ( strlen(password) + 1 > PASSWORD_LEN ) ) return(ESP_ERR_INVALID_ARG);
 
 	wifi_ap_info_t *ap_info = malloc(sizeof(wifi_ap_info_t));
 	if (ap_info == 0) return(ESP_ERR_NO_MEM);
@@ -720,7 +720,6 @@ void wifi_multi_loglevel_set(esp_log_level_t level)
 {
 
     esp_log_level_set(TAG, level);
-    ESP_LOGI(TAG, "ESP_WIFI_MODE_INIT_STA");
 
 }
 

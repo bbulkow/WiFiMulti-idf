@@ -21,24 +21,23 @@
 #include "freertos/semphr.h"
 
 #include "esp_system.h"
-#include "esp_event.h"
-#include "esp_timer.h"
 #include "esp_wifi.h"
 #include "esp_log.h"
-#include "nvs_flash.h"
+#include "esp_err.h"
 
+extern "C" {
 
 /*
 ** NOT EXISTING! Please see the readme and do some coding if you want this supported!
 */
-int wifi_multi_ap_remove(const char *ssid)
+int wifi_multi_ap_remove(const char *ssid);
 
 /*
 ** Add an AP. If there is no password ( it's open ) you can pass nothing.
 ** Both values are put into an internal datastructure and are not consumed.
 */
 
-int wifi_multi_ap_add(const char* ssid, const char *password) 
+int wifi_multi_ap_add(const char* ssid, const char *password);
 
 /*
 ** it's very useful to set the log levels programmatically so you can
@@ -49,11 +48,14 @@ int wifi_multi_ap_add(const char* ssid, const char *password)
 ** VERBOSE shows even more info about the choices being made
 */
 
-void wifi_multi_set_loglevel(int loglevel);
+void wifi_multi_loglevel_set(esp_log_level_t loglevel);
 
 /*
-** call this function after you add aps to have the background tasks maintain
+** call this function BEFORE you add aps to have the background tasks maintain
 ** the network connection
 */
 
 void wifi_multi_start();
+
+} /* extern C */
+

@@ -82,6 +82,13 @@ open internet is working ( ie, connect to a well known service over HTTP ),
 the acid test is if _your_ service works, so an API call which says "not working"
 from the application level is far better.
 
+Interate with NVS. Having non-volitile storage inside the ESP32 is awesome, and
+there's a claim in the wifi library that it'll log you into APs that you've logged
+into before, using NVS, but no clear idea how that works. Can you attempt to attach
+but with no password? Instead, I think you have to actively manage NVS, which would be
+super cool because you could have a website where you put in an AP name and password,
+instead of having them hardcoded.
+
 Support shutting down
 
 Test adding an AP while running ( coded to work but not tested )

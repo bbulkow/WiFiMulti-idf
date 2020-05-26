@@ -8,5 +8,5 @@ set(srcs
 # going to hack by adding the ESP32 define in the h file
 	#`target_compile_options(${COMPONENT_LIB} PRIVATE "-DESP32")
 
-	#idf_component_register(SRCS "${srcs}"
-	#		INCLUDE_DIRS "." "./hal" )
+	idf_component_register(SRCS "WiFiMulti-idf.c"
+			INCLUDE_DIRS "./include"  )

@@ -8,17 +8,28 @@
 */
 #include <stdio.h>
 #include <stdint.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
 #include "esp_system.h"
-#include "esp_spi_flash.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_log.h"
+#include "esp_err.h"
+#include "nvs_flash.h"
 
 #include "WiFiMulti-idf.h"
+
+extern "C" {
+  void app_main();
+}
 
 void app_main()
 {
     //Initialize NVS --- 
     // NOTE! Does this clear NVS? Or just init access? Looks like gives access because it clears it if there are problems
+    // this honestly seems like boilerplate that shouldn't really be here
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
       ESP_ERROR_CHECK(nvs_flash_erase());
@@ -27,17 +38,16 @@ void app_main()
     ESP_ERROR_CHECK(ret);
 
     // Since this seems to be working, set the log level to warning instead of info
-    wifi_multi_loglevel_set(TAG, ESP_LOG_INFO);
-    ESP_LOGI(TAG, "ESP_WIFI_MODE_INIT_STA");
+    wifi_multi_loglevel_set(ESP_LOG_INFO);
 
     // in ESP-IDF is seems there are about 8 tasks
     uint16_t initial_tasks = uxTaskGetNumberOfTasks();
 
     wifi_multi_start();
     
-    wifi_multi_ap_add("sisyphus", "!medea4u");
-    wifi_multi_ap_add("bb-ap-x", "landshark");
-    wifi_multi_ap_add("laertes", "!medea4u");
+    wifi_multi_ap_add("sisyphus", "X");
+    wifi_multi_ap_add("bb-ap-x", "Y");
+    wifi_multi_ap_add("laertes", "Z");
     // put this back, it's a good idea, just right now it's also the above one
     //wifi_multi_ap_add(EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
 
@@ -51,7 +61,7 @@ void app_main()
       // the interesting bit about this talks about the 'idle task' which will
       // reap deleted tasks... it it out there? Did I need to configure
       // something to start it?
-      ESP_LOGD(TAG,"tasks remaining: %u waiting for %u\n",n_tasks,initial_tasks);
+      printf("tasks remaining: %u waiting for %u\n",n_tasks,initial_tasks);
 
       if (n_tasks == initial_tasks) {
         printf("my tasks must have died --- let's restart!\n");
