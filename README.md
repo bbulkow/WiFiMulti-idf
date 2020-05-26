@@ -1,8 +1,14 @@
 # WiFiMulti-idf
 
+# It doesn't work yet
+
+I'm pretty sure I've got include path problems still. Working!
+
 # TL;DR
 
 ESP-IDF component with the WiFi Multi interface ( mostly ) from Arduino.
+
+ESP-IDF 4.1 or better!
 
 Pull requests welcome.
 
