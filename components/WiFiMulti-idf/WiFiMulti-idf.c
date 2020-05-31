@@ -53,6 +53,15 @@
 **
 ** I think the safest thing is a mutex to make sure there isn't concurrent access. I think trying to make
 ** certain there is a 1-for-1 access ot that function is too hard.
+**
+** Interesting! It's a really bad idea to do a scan and be connected, because it seems there
+** is generally only one radio. With only one radio, a scan, even a background scan, that
+** seems benign, will cause large packet delays. Unclear _exactly_ why that is, and it's
+** kinda cool that it just doesn't fail, but the real action here should be to scan as fast as
+** possible when not connected, and every time a connection fails, scan again.
+**
+** the "find best" logic is still good, and maybe even the idea that you should keep an old scan
+** if it's only a few days old and try and immediate reconnect, but you can't background scan.
 */
 
 /*
@@ -278,9 +287,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                     ap->fails++;
                 }
 
-                // esp_wifi_connect();
-                // xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-                // s_retry_num++;
+                // TODO: signal for a new scan
                 g_is_connected = false;
                 g_is_connecting = false;
 
@@ -355,7 +362,7 @@ static void wifi_scan_task(void *pvParameters) {
         // I am worried this is not thread safe, so protect
         if( pdTRUE == xSemaphoreTake(g_wifi_scan_mutex, 1000 / portTICK_PERIOD_MS)) {
             // I read you should not scan while connecting
-            if (g_is_connecting == false) {
+            if ((g_is_connected) == false && (g_is_connecting == false)) {
                 ESP_LOGD(TAG, "scan started: ");
                 esp_err_t err = esp_wifi_scan_start(&scan_config, true);
                 if (err == ESP_OK) {
@@ -363,12 +370,12 @@ static void wifi_scan_task(void *pvParameters) {
                 }
             }
             else {
-                ESP_LOGV(TAG, "skipping scan while connecting: ");
+                ESP_LOGV(TAG, "skipping scan while connecting or connected ");
             }
             xSemaphoreGive(g_wifi_scan_mutex);
         }
-
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        // test to see if things change
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 
 }
@@ -704,6 +711,9 @@ void wifi_multi_start()
     ESP_ERROR_CHECK(esp_wifi_set_country(&wifi_country));
 
     ESP_ERROR_CHECK(esp_wifi_start() );
+
+    // check here?
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE) );
 
     // kick off scan and connect tasks
     xTaskCreate(wifi_scan_task, "wifi_scan_task",4096/*stacksizewords*/, 
